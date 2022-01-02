@@ -1,0 +1,167 @@
+---
+openapi: 3.0.0
+info:
+  title: HowTo Phonetic Alphabet
+  description: Phonetic Alphabet API
+  contact:
+    email: kate@reeher-palmer.net
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/klreeher/phonetic/1.0.0
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: developers
+  description: Operations available to regular developers
+paths:
+  /alphabet:
+    get:
+      tags:
+      - developers
+      summary: searches alphabet options
+      description: |
+        By passing in the appropriate options, you can search for
+        available alphabets in the system
+      operationId: searchAlphabets
+      parameters:
+      - name: searchString
+        in: query
+        description: pass an optional search string for looking up inventory
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: skip
+        in: query
+        description: number of records to skip for pagination
+        required: false
+        style: form
+        explode: true
+        schema:
+          minimum: 0
+          type: integer
+          format: int32
+      - name: limit
+        in: query
+        description: maximum number of records to return
+        required: false
+        style: form
+        explode: true
+        schema:
+          maximum: 50
+          minimum: 0
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alphabet'
+        "400":
+          description: bad input parameter
+    post:
+      tags:
+      - admins
+      summary: adds an inventory item
+      description: Adds an item to the system
+      operationId: addInventory
+      requestBody:
+        description: Inventory item to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Alphabet'
+      responses:
+        "201":
+          description: item created
+        "400":
+          description: invalid input, object invalid
+        "409":
+          description: an existing item already exists
+  /elements:
+    get:
+      tags:
+      - developers
+      summary: returns phonetic pronunciation options for the input selections.
+      description: |
+        You can pass in a character or digit and get back various phonetic pronunciation options for the different spelling alphabets.
+      operationId: searchElements
+      parameters:
+      - name: searchString
+        in: query
+        description: pass an optional search string for looking up elements.
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Element'
+        "400":
+          description: bad input parameter
+components:
+  schemas:
+    Alphabet:
+      required:
+      - id
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        name:
+          type: string
+          example: NATO Spelling Alphabet
+        description:
+          type: string
+          example: The International Radiotelephony Spelling Alphabet, commonly known as the NATO phonetic alphabet, NATO spelling alphabet, ICAO phonetic alphabet or ICAO spelling alphabet, is the most widely used radiotelephone spelling alphabet. The ITU phonetic alphabet and figure code is a rarely used variant that differs in the code words for digits.
+    Element:
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        name:
+          type: string
+          example: Lima
+        description:
+          type: string
+          example: |
+            "Lima" is replaced by the old RAF word "London" in Brunei, Indonesia, Malaysia and Singapore because "lima" means "five" in Indonesian, Malay and a number of other languages in those countries. Thus, confusion could occur if a string of mixed numerals and letters were being given.
+        character:
+          $ref: '#/components/schemas/Character'
+        alphabet:
+          $ref: '#/components/schemas/Alphabet'
+    Character:
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        name:
+          type: string
+          example: L
+        description:
+          type: string
+          example: L, or l, is the twelfth letter of the modern English alphabet and the ISO basic Latin alphabet. Its name in English is el (pronounced /ˈɛl/), plural els.
